@@ -78,7 +78,7 @@ namespace Battleship_game
                                     }
                                 }
                             }
-                            else if (row - ships[i] > 0)
+                            else
                             {
                                 for (int k = 0; k < ships[i]; k++)
                                 {
@@ -125,7 +125,7 @@ namespace Battleship_game
                                     }
                                 }
                             }
-                            else if (column - ships[i] > 0)
+                            else
                             {
                                 for (int k = 0; k < ships[i]; k++)
                                 {

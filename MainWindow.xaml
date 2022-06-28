@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         ResizeMode="NoResize"
         Title="MainWindow" Height="760" Width="1380">
-    <Grid>
+    <Grid x:Name="gameGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
             <RowDefinition Height="*" />
