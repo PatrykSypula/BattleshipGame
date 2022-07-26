@@ -149,7 +149,7 @@ namespace Battleship_game
                         }
                         else if (!topChecked)
                         {
-                            howManyMoveColumn--;
+                            howManyMoveColumn++;
                             var buttonCheck = TryMove(ref didMove);
                             if (buttonCheck.Background != Brushes.Green)
                             {
@@ -160,7 +160,7 @@ namespace Battleship_game
                         }
                         else if (!bottomChecked)
                         {
-                            howManyMoveColumn++;
+                            howManyMoveColumn--;
                             var buttonCheck = TryMove(ref didMove);
                             if (buttonCheck.Background != Brushes.Green)
                             {
@@ -191,7 +191,7 @@ namespace Battleship_game
         public Button TryMove(ref bool didMove)
         {
             var button = FindButton();
-            if (button.Background == Brushes.White && battlefieldPlayer2[row - howManyMoveRow, column - howManyMoveColumn] == true)
+            if (button.Background == Brushes.White && battlefieldPlayer2[column - howManyMoveColumn, row - howManyMoveRow] == true)
             {
                 button.Background = Brushes.Green;
                 player1.Health = player1.Health - 1;
@@ -199,7 +199,7 @@ namespace Battleship_game
                 didMove = true;
                 tryToFindAllPossibilities = true;
             }
-            else if (button.Background == Brushes.White && battlefieldPlayer2[row - howManyMoveRow, column - howManyMoveColumn] == false)
+            else if (button.Background == Brushes.White && battlefieldPlayer2[column - howManyMoveColumn, row - howManyMoveRow] == false)
             {
                 button.Background = Brushes.Gray;
                 IsPlayer1Turn ^= true;
@@ -215,7 +215,7 @@ namespace Battleship_game
             int columnNumber = column - howManyMoveColumn;
             foreach (var x in gameGrid.Children.OfType<Button>())
             {
-                if (x.Name == "Button_2_" + rowNumber + "_" + columnNumber)
+                if (x.Name == "Button_2_" + columnNumber + "_" + rowNumber)
                     button = x;
             }
             return button;
