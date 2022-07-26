@@ -24,8 +24,19 @@ namespace Battleship_game
         Player player1 = new Player();
         Player player2 = new Player();
         bool IsPlayer1Turn = true;
-        bool[,] battlefieldPlayer1 = new bool[10,10];
+        bool[,] battlefieldPlayer1 = new bool[10, 10];//size of battlefield
         bool[,] battlefieldPlayer2;
+        int checks = 0;
+        bool leftChecked = false;
+        bool rightChecked = false;
+        bool topChecked = false;
+        bool bottomChecked = false;
+        bool tryToFindAllPossibilities = false;
+        int howManyMoveRow = 0;
+        int howManyMoveColumn = 0;
+        int row = 0;
+        int column = 0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -39,8 +50,20 @@ namespace Battleship_game
             ClearFields();
             battlefieldPlayer1 = GenerateBattlefield.GenerateField();
             battlefieldPlayer2 = GenerateBattlefield.GenerateField();
-            player1.Health = 17;
-            player2.Health = 17;
+            player1 = new Player();//Set player's health to max
+            player2 = new Player();
+            GC.Collect();
+        }
+        public void ClearCheck()
+        {
+            checks = 0;
+            leftChecked = false;
+            rightChecked = false;
+            topChecked = false;
+            bottomChecked = false;
+            howManyMoveRow = 0;
+            howManyMoveColumn = 0;
+            tryToFindAllPossibilities = false;
         }
         //Check if the button pressed contains ship (true value in array), if yes then reduces seconds player health
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -58,42 +81,102 @@ namespace Battleship_game
                         button.Background = Brushes.Green;
                         player2.Health = player2.Health - 1;
                         IsPlayer1Turn ^= true;
+                        EnemyTurn();
                     }
                     else
                     {
                         button.Background = Brushes.Gray;
                         IsPlayer1Turn ^= true;
+                        EnemyTurn();
                     }
                     if (player2.Health == 0)
                     {
-                        MessageBox.Show("Player 1 won. Player who lost starts next game");
-                        Player1Score.Text = (int.Parse(Player1Score.Text) + 1).ToString();
-                        NewGame();
-                        return;
+                        Player1Win();
                     }
                 }
             }
-            else if (buttonValue[1] == "2" && IsPlayer1Turn == false)
+
+        }
+
+        public void EnemyTurn()
+        {
+            if (player2.Health == 0)
             {
-                if (button.Background == Brushes.White)
+                Player1Win();
+            }
+            if (!IsPlayer1Turn)
+            {
+                var button = new Button();
+                Random random = new Random();
+                bool didMove = false;
+                while (!didMove)
                 {
-                    if (battlefieldPlayer2[int.Parse(buttonValue[2]), int.Parse(buttonValue[3])] == true)
+                    if (!tryToFindAllPossibilities)
                     {
-                        button.Background = Brushes.Green;
-                        player1.Health = player1.Health - 1;
-                        IsPlayer1Turn ^= true;
+                        row = random.Next(0, 10);
+                        column = random.Next(0, 10);
+                        button = FindButton();
+                        GC.Collect();
+                        TryMove(ref didMove);
                     }
                     else
                     {
-                        button.Background = Brushes.Gray;
-                        IsPlayer1Turn ^= true;
+                        if (row == 0 && topChecked == false) { topChecked = true; checks++; }
+                        if (row == 9 && bottomChecked == false) { bottomChecked = true; checks++; }
+                        if (column == 0 && leftChecked == false) { leftChecked = true; checks++; }
+                        if (column == 9 && rightChecked == false) { rightChecked = true; checks++; }
+                        if (checks == 4)
+                        {
+                            ClearCheck();
+                        }
+                        else if (!leftChecked)
+                        {
+                            howManyMoveRow++;
+                            var buttonCheck = TryMove(ref didMove);
+                            if (buttonCheck.Background != Brushes.Green)
+                            {
+                                leftChecked = true;
+                                howManyMoveRow = 0;
+                                checks++;
+                            }
+                        }
+                        else if (!rightChecked)
+                        {
+                            howManyMoveRow--;
+                            var buttonCheck = TryMove(ref didMove);
+                            if (buttonCheck.Background != Brushes.Green)
+                            {
+                                rightChecked = true;
+                                howManyMoveRow = 0;
+                                checks++;
+                            }
+                        }
+                        else if (!topChecked)
+                        {
+                            howManyMoveColumn--;
+                            var buttonCheck = TryMove(ref didMove);
+                            if (buttonCheck.Background != Brushes.Green)
+                            {
+                                topChecked = true;
+                                howManyMoveColumn = 0;
+                                checks++;
+                            }
+                        }
+                        else if (!bottomChecked)
+                        {
+                            howManyMoveColumn++;
+                            var buttonCheck = TryMove(ref didMove);
+                            if (buttonCheck.Background != Brushes.Green)
+                            {
+                                bottomChecked = true;
+                                howManyMoveColumn = 0;
+                                checks++;
+                            }
+                        }
                     }
                     if (player1.Health == 0)
                     {
-                        MessageBox.Show("Player 2 won. Player who lost starts next game");
-                        Player2Score.Text = (int.Parse(Player2Score.Text) + 1).ToString() ;
-                        NewGame();
-                        return;
+                        Player2Win();
                     }
                 }
             }
@@ -105,9 +188,57 @@ namespace Battleship_game
         {
             foreach (var x in gameGrid.Children.OfType<Button>())
             {
-                    x.Background = Brushes.White;
+                x.Background = Brushes.White;
             }
-           
+
+        }
+        public Button TryMove(ref bool didMove)
+        {
+            var button = FindButton();
+            if (button.Background == Brushes.White && battlefieldPlayer2[row - howManyMoveRow, column - howManyMoveColumn] == true)
+            {
+                button.Background = Brushes.Green;
+                player1.Health = player1.Health - 1;
+                IsPlayer1Turn ^= true;
+                didMove = true;
+                tryToFindAllPossibilities = true;
+            }
+            else if (button.Background == Brushes.White && battlefieldPlayer2[row - howManyMoveRow, column - howManyMoveColumn] == false)
+            {
+                button.Background = Brushes.Gray;
+                IsPlayer1Turn ^= true;
+                didMove = true;
+            }
+            return button;
+        }
+
+        public Button FindButton()
+        {
+            var button = new Button();
+            int rowNumber = row - howManyMoveRow;
+            int columnNumber = column - howManyMoveColumn;
+            foreach (var x in gameGrid.Children.OfType<Button>())
+            {
+                if (x.Name == "Button_2_" + rowNumber + "_" + columnNumber)
+                    button = x;
+            }
+            return button;
+        }
+        public void Player1Win()
+        {
+            MessageBox.Show("Player 1 won. Player who lost starts next game");
+            Player1Score.Text = (int.Parse(Player1Score.Text) + 1).ToString();
+            NewGame();
+            IsPlayer1Turn ^= true;
+            EnemyTurn();
+            return;
+        }
+        public void Player2Win()
+        {
+            MessageBox.Show("Player 2 won. Player who lost starts next game");
+            Player2Score.Text = (int.Parse(Player2Score.Text) + 1).ToString();
+            NewGame();
+            return;
         }
     }
 }

@@ -8,7 +8,6 @@ namespace Battleship_game
 {
     public class Player
     {
-        public int Health { get; set; }
-
+        public int Health { get; set; } = 17;
     }
 }
