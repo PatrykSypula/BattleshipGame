@@ -121,10 +121,6 @@ namespace Battleship_game
                     }
                     else
                     {
-                        if (row == 0 && topChecked == false) { topChecked = true; checks++; }
-                        if (row == 9 && bottomChecked == false) { bottomChecked = true; checks++; }
-                        if (column == 0 && leftChecked == false) { leftChecked = true; checks++; }
-                        if (column == 9 && rightChecked == false) { rightChecked = true; checks++; }
                         if (checks == 4)
                         {
                             ClearCheck();
